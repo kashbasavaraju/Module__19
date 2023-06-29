@@ -48,7 +48,7 @@ def get_balance(w3, address):
 def send_transaction(w3, account, to, wage):
     """Send an authorized transaction to the Ganache blockchain."""
     # Set gas price strategy
-    w3.eth.setGasPriceStrategy(lambda x: 1000000000)  # Set gas price to 1 gwei)
+    w3.eth.setGasPriceStrategy(medium_gas_price_strategy)
 
     # Convert eth amount to Wei
     value = w3.toWei(wage, "ether")
@@ -56,15 +56,19 @@ def send_transaction(w3, account, to, wage):
     # Calculate gas estimate
     gasEstimate = w3.eth.estimateGas({"to": to, "from": account.address, "value": value})
 
+    # Set gas price
+    gas_price = w3.eth.generate_gas_price()
+
     # Construct a raw transaction
     raw_tx = {
         "to": to,
         "from": account.address,
         "value": value,
         "gas": gasEstimate,
-        "gasPrice": 0,
+        "gasPrice": gas_price,
         "nonce": w3.eth.getTransactionCount(account.address)
     }
+
 
     # Sign the raw transaction with ethereum account
     signed_tx = account.signTransaction(raw_tx)
